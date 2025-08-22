@@ -1,0 +1,5 @@
+*************** wqsreg.pkg
+v 1 21 August 2025
+d 'wqsreg'A Stata command for Weighted Quantile Sum regression 
+d M. Ponzano, S. Renzetti, A. Bellavia
+f wqsreg.ado
