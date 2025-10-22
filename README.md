@@ -16,13 +16,13 @@ Further details can be found in Discacciati et al. (2018) and in the help file.
 
 - To install the current version of `wqsreg` directly from GitHub, run:
 ```Stata
-net install med4way, from("https://raw.githubusercontent.com/PonzanoMarta/wqsreg/master/") replace
+net install wqsreg, from("https://raw.githubusercontent.com/PonzanoMarta/wqsreg/master/") replace
 ``` 
 from within a web-aware Stata (version 13+).
 
 - For older versions of Stata, download and extract the [zip file](https://github.com/PonzanoMarta/wqsreg/archive/master.zip) and then run:
 ```Stata
-net install med4way, from(mydir) replace 
+net install wqsreg, from(mydir) replace 
 ```
 from within Stata, where *mydir* is the directory that containes the extracted files.
 
