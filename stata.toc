@@ -1,4 +1,0 @@
-*************** stata.toc
-v 1
-d wqsreg: A Stata command for Weighted Quantile Sum regression : 
-p wqsreg
