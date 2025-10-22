@@ -10,7 +10,7 @@
 
 `wqsreg` allows estimating Weighted Quantile Sum regression for continuous, binary, and count outcomes
 
-Further details can be found in Discacciati et al. (2018) and in the help file.
+Further details can be found in the help file.
 
 ### Installation
 
