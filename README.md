@@ -39,7 +39,7 @@ net get wqsreg, from("https://raw.githubusercontent.com/PonzanoMarta/wqsreg/mast
 
 Marta Ponzano (1, 2), Stefano Renzetti (2), Andrea Bellavia (3,4)
 
-*(1) University of Genoa, Italy (2) Department of Life Science, Health, and Health Professions, Link Campus University, Rome, Italy (3) University of Parma, Italy (4) Harvard T.H. Chan School of Public Health, Boston, MA, USA (5) Harvard Medical School, Boston, MA, USA*
+*(1) University of Genoa, Genoa, Italy (2) Link Campus University, Rome, Italy (3) University of Parma, Italy (4) Harvard T.H. Chan School of Public Health, Boston, MA, USA (5) Harvard Medical School, Boston, MA, USA*
 
 ### References
 
