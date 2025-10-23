@@ -1,7 +1,7 @@
 
 /*
 wqsreg: fitting Weighted Quantile Sum (WQS) regression models for continuous outcomes
-Version 1: 21 October 2025
+Version 1: 22 October 2025
 */
 
 capture program drop wqsreg 
@@ -751,5 +751,6 @@ mata
 
 	}
 end
+
 
 /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
