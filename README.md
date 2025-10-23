@@ -30,10 +30,7 @@ from within Stata, where *mydir* is the directory that containes the extracted f
 ```Stata
 help wqsreg
 ```
-- To download in the current working directory the datasets needed to run the example code in the help file, type:
-```Stata
-net get wqsreg, from("https://raw.githubusercontent.com/PonzanoMarta/wqsreg/master/")
-```
+
 
 ### Authors
 
