@@ -2,7 +2,7 @@
 ### A Stata command for Weighted Quantile Sum regression
 
 - Current version: `0.1-Beta` 
-- Release date: `22oct2025`
+- Release date: `23oct2025`
 
 ---
 
