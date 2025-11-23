@@ -14,7 +14,7 @@
 {title:Syntax}
 
 {p 8 13 2}
-{cmd:wqsreg} {it:yvar} {it:expvars} [{it:cvars}] , {opt mixture(varlist)} {opt boot(#)} [ {it:options} ]
+{cmd:wqsreg} {it:yvar} {it:expvars} [{it:cvar}] , {opt mixture(varlist)} {opt boot(#)} [ {it:options} ]
 
 
 {phang}
@@ -24,7 +24,7 @@
 {it:expvars} is the varlist containing the names of the variables representing the exposure.  
 
 {phang}
-[{it:cvars}] is the varlist containing the names of the variables representing the confounders.  
+[{it:cvar}] is the varlist containing the names of the variables representing the confounders.  
 
 
 {synoptset 31 tabbed}{...}
