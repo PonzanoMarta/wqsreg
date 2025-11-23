@@ -105,8 +105,8 @@ program define wqsreg  , rclass
 														 local threshold = 1/`n_mixt'
 														 
 														 qui graph box Weights 	, ///
-                                                                   over(mixt, label(angle(90))) title("Weights") ytitle("") box(1, lcolor(gs9))   ///
-                                                                   yline(`threshold', lcolor(red) lpattern(dash))
+                                                                   over(mixt, sort(1)  descending label(angle(90))) title("Weights") ytitle("") box(1, lcolor(gs9))   ///
+                                                                   yline(`threshold', lcolor(red) lpattern(dash)) 
 																   
 														 qui graph save box_Weights.gph, replace 
 								 
