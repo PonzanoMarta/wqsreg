@@ -471,7 +471,7 @@ program define wqsreg_no_rh , rclass
                                replace weight = mean_cols[1, `i']  in `i'
                                }
  
-  graph hbar weight,   over(varname, sort(1) descending label(angle(0))) bar(1, color(gs9)) title("Weights") ytitle("") blabel(bar, format(%5.2f)) yline(`threshold', lcolor(gs9) lpattern(dash))
+  graph hbar weight,   over(varname, sort(1) descending label(angle(0))) bar(1, color(gs9)) title("Weights") ytitle("") /*blabel(bar, format(%5.2f))*/ yline(`threshold', lcolor(gs9) lpattern(dash))
   
   if "`figureName'" != ""  {
 		                     qui graph save "`figureName'.gph" , replace
