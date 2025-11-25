@@ -94,7 +94,7 @@ Specifically, we assess the association between the x1-x14 mixture and the conti
 {pstd}
 The estimate of the WQS index coefficient is 0.47 (95% CI: 0.38–0.57), indicating the presence of a positive effect of the mixture on the outcome y.
 The figure displaying the ranking of exposures as they contribute to this overall effect is available on GitHub ("ExampleFigure.png").
-x4 is identified as the most important component within the mixture (0.39), followed by x12 (0.14), x8 (0.11), x7 (0.10) and x1 (0.09).
+x4 is identified as the most important component within the mixture, followed by x12, x8, x7 and x1.
  
 
 {title:References}
