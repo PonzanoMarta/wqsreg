@@ -41,3 +41,5 @@ Marta Ponzano (1, 2), Stefano Renzetti (3), Andrea Bellavia (4,5)
 ### References
 
 Carrico C, Gennings C, Wheeler DC, Factor-Litvak P. Characterization of weighted quantile sum regression for highly correlated data in a risk analysis setting. Journal of agricultural, biological, and environmental statistics. 2015 Mar;20(1):100-20.
+
+Tanner EM, Bornehag CG, Gennings C. Repeated holdout validation for weighted quantile sum regression. MethodsX. 2019 Nov 22;6:2855-2860. doi: 10.1016/j.mex.2019.11.008. PMID: 31871919; PMCID: PMC6911906.
