@@ -7,8 +7,8 @@ capture program drop wqsreg
 program define wqsreg  , rclass
 
  syntax varlist ///
- [, validation(integer 0) q(integer 4) b1_neg(integer 0) cvar(varlist) seed(integer 0) conv_maxiter(integer 2000) conv_vtol(real 0.000000001) technique(string) model_fam(string) saveWQSindex(integer 0) saveWeights(integer 0) datasetWQSindexName(string) datasetWeightsName(string) figureName(string) id(string) rh_rep(integer 1)  ] ///
- mixture(varlist)  boot(integer) 
+ [, validation(integer 60) q(integer 4) b1_neg(integer 0) cvar(varlist) seed(integer 0) conv_maxiter(integer 2000) conv_vtol(real 0.000000001) technique(string) model_fam(string) saveWQSindex(integer 0) saveWeights(integer 0) datasetWQSindexName(string) datasetWeightsName(string) figureName(string) id(string) rh_rep(integer 1)  boot(integer 100)] ///
+ mixture(varlist)   
  
  local n_mixt : word count `mixture'
  scalar n_mixt = `n_mixt'
@@ -140,7 +140,7 @@ program define wqsreg  , rclass
 								 display "				2.5-97.5th : ["`p2_5' ", "`p97_5' "]"
 								 restore
 								 
-								 graph combine box_Weights.gph coef_WQS_index_var.gph, title("rh - `n' repetitions")
+								 graph combine coef_WQS_index_var.gph box_Weights.gph, title("rh - `n' repetitions")
 
 								 if "`figureName'" != ""  {
 		                                                   qui graph save "`figureName'.gph" , replace
@@ -159,8 +159,8 @@ program define wqsreg_no_rh , rclass
  version 11
  
  syntax varlist ///
- [, validation(integer 0) q(integer 4) b1_neg(integer 0) cvar(varlist) seed(integer 0) conv_maxiter(integer 2000) conv_vtol(real 0.000000001) technique(string) model_fam(string) saveWQSindex(integer 0) saveWeights(integer 0) datasetWQSindexName(string) datasetWeightsName(string) figureName(string) id(string) ] ///
- mixture(varlist)  boot(integer) 
+ [, validation(integer 60) q(integer 4) b1_neg(integer 0) cvar(varlist) seed(integer 0) conv_maxiter(integer 2000) conv_vtol(real 0.000000001) technique(string) model_fam(string) saveWQSindex(integer 0) saveWeights(integer 0) datasetWQSindexName(string) datasetWeightsName(string) figureName(string) id(string) boot(integer 100) ] ///
+ mixture(varlist)  
  
   /*conv_maxiter*/
   if (`conv_maxiter'<=0) {
