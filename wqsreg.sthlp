@@ -14,7 +14,7 @@
 {title:Syntax}
 
 {p 8 13 2}
-{cmd:wqsreg} {it:yvar} {it:expvars} [{it:cvar}] , {opt mixture(varlist)} {opt boot(#)} [ {it:options} ]
+{cmd:wqsreg} {it:yvar} {it:expvars} [{it:cvar}] , {opt mixture(varlist)} [ {it:options} ]
 
 
 {phang}
@@ -31,9 +31,9 @@
 {synopthdr :options}
 {synoptline}
 {p2coldent: * {opt mixture(varlist)}}specify the list of exposure variables{p_end}
-{p2coldent: * {opt boot(#)}}set the number of bootstrap samples (>0); setting boot = 1 disables bootstrapping{p_end}
 
-{synopt :{opt validation(integer)}}specify the validation set percentage (default: 0 = no split; range: [0, 100)){p_end}
+{synopt :{opt boot(integer)}}set the number of bootstrap samples (>0); setting boot = 1 disables bootstrapping (default: 100){p_end}
+{synopt :{opt validation(integer)}}specify the validation set percentage ([0, 100)); setting validation = 0 means no split (default: 60){p_end}
 {synopt :{opt q(integer)}}define the quantiles; the default is 4 (quartiles){p_end}
 {synopt :{opt b1_neg(integer)}}set uni-directionality constraint: 0 = positive (default); 1 = negative{p_end}
 {synopt :{opt cvar(varlist)}}specify the list of confounders{p_end}
@@ -51,7 +51,7 @@
 {synopt :{opt rh_rep(integer)}}set the number of repetitions for repeated holdout validation; 1 is the default (no repeated holdout validation){p_end}
 {p2colreset}{...}
 
-{p 4 6 2}* are required.{p_end}
+{p 4 6 2}* required.{p_end}
 
 
 {title:Description}
@@ -79,7 +79,7 @@ National Health and Nutrition Examination Survey (NHANES). This dataset is avail
 We fit a WQS regression model with positive directionality assumption, using quartiles for exposure categorization and 100 bootstrap samples with a 40/60 training-validation split.
 Specifically, we assess the association between the x1-x14 mixture and the continuous outcome y while adjusting for z1.
 
-{pstd}{cmd:. wqsreg y x* z1, mixture(x*) boot(100) validation(60) cvar(z1)}
+{pstd}{cmd:. wqsreg y x* z1, mixture(x*) cvar(z1)}
 
                    -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
                    N observations used - Total: 500
