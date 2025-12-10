@@ -4,3 +4,4 @@ d 'wqsreg'A Stata command for Weighted Quantile Sum regression
 d M. Ponzano, S. Renzetti, A. Bellavia
 f wqsreg.ado
 f wqsreg.sthlp
+f DataHelp.dta 
