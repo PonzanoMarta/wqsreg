@@ -1,8 +1,8 @@
 # wqsreg
 ### A Stata command for Weighted Quantile Sum regression
 
-- Current version: `0.1-Beta` 
-- Release date: `23oct2025`
+- Current version: `V.1.0.0` 
+- Release date: `12dec2025`
 
 ---
 
