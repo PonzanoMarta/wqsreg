@@ -6,8 +6,8 @@ wqsreg: fitting Weighted Quantile Sum (WQS) regression models for continuous out
 capture program drop wqsreg 
 program define wqsreg  , rclass
 
- syntax varlist ///
- [, validation(integer 60) q(integer 4) b1_neg(integer 0) cvar(varlist) seed(integer 0) conv_maxiter(integer 2000) conv_vtol(real 0.000000001) technique(string) model_fam(string) saveWQSindex(integer 0) saveWeights(integer 0) datasetWQSindexName(string) datasetWeightsName(string) figureName(string) id(string) rh_rep(integer 1)  boot(integer 100)] ///
+ syntax varlist(max=1 numeric) ///
+ [, validation(integer 60) q(integer 4) b1_neg(integer 0) cvar(varlist) seed(integer 0) conv_maxiter(integer 2000) conv_vtol(real 0.000000001) technique(string) model_fam(string) savingWQSindex(string)  savingWeights(string) figureName(string) id(string) rh_rep(integer 1)  boot(integer 100)] ///
  mixture(varlist)   
  
  local n_mixt : word count `mixture'
@@ -18,14 +18,21 @@ program define wqsreg  , rclass
   di as err "Error, please set the number of repetitions for repeated holdout validation (rh_rep); 1 is the default (no repeated holdout validation)"
   exit 198
   } 
-
+  
+   if (`rh_rep'==1 ) {
+   di as txt "Note: for a more robust estimation the use of repeated holdouts is recommended"
+  } 
+  
+  if (`rh_rep'!=1 & "`savingWQSindex'"!="") {
+								  	        di as err "Error, savingWQSindex is not allowed for repeated holdout validation (rh_rep)"
+                                            exit 198
+								                         }
   
   if (`rh_rep'==1 | `rh_rep'==. ) {
   wqsreg_no_rh `varlist'  , validation(`validation') q(`q') b1_neg(`b1_neg') cvar(`cvar') /// 
                                        seed(`seed') conv_maxiter(`conv_maxiter') conv_vtol(`conv_vtol') ///
                                        technique(`technique') model_fam(`model_fam') ///
-                                       saveWQSindex(`saveWQSindex') saveWeights(`saveWeights') ///
-									   datasetWQSindexName(`datasetWQSindexName') datasetWeightsName(`datasetWeightsName') ///
+                                        savingWeights(`savingWeights') savingWQSindex(`savingWQSindex')   ///
                                        figureName(`figureName') id(`id')  ///
                                        mixture(`mixture') boot(`boot')
   } 
@@ -37,20 +44,25 @@ program define wqsreg  , rclass
      
 	 matrix coef_WQS_indexM = J(`rh_rep', 1, .)
 	 matrix WeightsM = J(`rh_rep',`n_mixt', .)
-     forvalues s = `start'/`end' {	   
-	 	                               local index = `s' - `start' + 1		
-	 
+     forvalues s = `start'/`end' {	   	
+										
+	 	                               local index = `s' - `start' + 1	
+									   
+									    
 	                                   di "......repeated holdout `index'......."
 									   capture noisily wqsreg_no_rh `varlist'  , validation(`validation') q(`q') b1_neg(`b1_neg') cvar(`cvar') /// 
                                                                  seed(`s') conv_maxiter(`conv_maxiter') conv_vtol(`conv_vtol') ///
                                                                  technique(`technique') model_fam(`model_fam') ///
-                                                                 saveWQSindex(`saveWQSindex') saveWeights(`saveWeights') ///
-									                             datasetWQSindexName(`datasetWQSindexName') datasetWeightsName(`datasetWeightsName') ///
+                                                                 savingWQSindex(`savingWQSindex') savingWeights(`savingWeights') ///
                                                                  figureName(`figureName') id(`id')  ///
                                                                  mixture(`mixture') boot(`boot')
 										
-										
-										if (_rc!=0) {
+																				
+										if (_rc==1) {   // user break
+                                                         di as err "Interrupted by the user"
+                                                         exit 198
+                                                        }
+                                      else if (_rc!=0) {
 											         di as txt "Warning - repeated holdout `index' not used"
 										            }						 
 									   
@@ -62,15 +74,13 @@ program define wqsreg  , rclass
 									                             matrix WeightsM[`s'-`start'+1,`i']=val`i'
 									                            }     
 																} 
-                                  }  
+                                  }
 								  
-								  							
-								  if (`saveWQSindex'==1) {
-								  	                      di as err "Error, saveWQSindex is not allowed for repeated holdout validation (rh_rep)"
-                                                          exit 198
-								                         }
-								
-								  preserve 
+
+								  capture frame drop fTemp
+								  frame create fTemp
+                                  frame change fTemp
+								  
 								  qui clear 
 								  qui set obs `rh_rep'
 								  								
@@ -79,14 +89,9 @@ program define wqsreg  , rclass
 								                        qui gen Weights`j' = .
 								                        forvalues i = 1/`rh_rep' {
                                                                                  qui replace Weights`j' = WeightsM[`i', `j'] in `i' 
-																				 if (`saveWeights'==1){
-		                   	                                                                           if "`datasetWeightsName'" == ""  {
-	                                                                                                                                      qui save dataset_Weights.dta, replace
-                                                                                                                                         }
-	                                                                                                   else                             {
-	                                                                                                                                     qui save "`datasetWeightsName'.dta" , replace
-	                                                                                                                                     }	
-	                                                                                                   }		 
+																				 if ("`savingWeights'"!=""){
+																				 	                          savingWeights, filename("`savingWeights'")
+																					                       }		 
 								                                                 }
 														 }
 														 														 					 				     
@@ -110,9 +115,14 @@ program define wqsreg  , rclass
 																   
 														 qui graph save box_Weights.gph, replace 
 								 
-								  restore
 								  
-								  preserve
+								  frame change default
+								  
+								  
+								  capture frame drop fTemp
+								  frame create fTemp
+                                  frame change fTemp
+								  
 								  qui clear 
 								  qui set obs `rh_rep'
 								  
@@ -138,7 +148,9 @@ program define wqsreg  , rclass
                                  local p2_5 = r(c_1)
                                  local p97_5 = r(c_2) 
 								 display "				2.5-97.5th : ["`p2_5' ", "`p97_5' "]"
-								 restore
+								 
+								  
+								 frame change default
 								 
 								 graph combine coef_WQS_index_var.gph box_Weights.gph, title("rh - `n' repetitions")
 
@@ -159,8 +171,11 @@ program define wqsreg_no_rh , rclass
  version 11
  
  syntax varlist ///
- [, validation(integer 60) q(integer 4) b1_neg(integer 0) cvar(varlist) seed(integer 0) conv_maxiter(integer 2000) conv_vtol(real 0.000000001) technique(string) model_fam(string) saveWQSindex(integer 0) saveWeights(integer 0) datasetWQSindexName(string) datasetWeightsName(string) figureName(string) id(string) boot(integer 100) ] ///
+ [, validation(integer 60) q(integer 4) b1_neg(integer 0) cvar(varlist) seed(integer 0) conv_maxiter(integer 2000) conv_vtol(real 0.000000001) technique(string) model_fam(string) savingWQSindex(string) savingWeights(string)   figureName(string) id(string) boot(integer 100) ] ///
  mixture(varlist)  
+ 
+ qui frame copy default fWQS, replace /*create & copy current data to new frame*/
+ frame change fWQS                // switch to the new frame
  
   /*conv_maxiter*/
   if (`conv_maxiter'<=0) {
@@ -189,9 +204,15 @@ program define wqsreg_no_rh , rclass
         local model_fam "Linear"
                            }						   
  
-  qui save Dati.dta, replace
- 
   foreach var of varlist `varlist' {
+       qui drop if `var'==.
+  }
+   if ("`cvar'"!="") {
+	foreach var of varlist `cvar' {
+       qui drop if `var'==.
+  }
+  }
+    foreach var of varlist `mixture' {
        qui drop if `var'==.
   }
   
@@ -201,32 +222,19 @@ program define wqsreg_no_rh , rclass
         exit 198
   } 
   
-  /* saveWQSindex*/
-  if (`saveWQSindex'!=0 & `saveWQSindex'!=1) {
-        di as err "Error, saveWQSindex can be 1 (save) or 0 (do not save)"
+  /* savingWQSindex*/
+if ("`savingWQSindex'"!="" & "`id'"=="") {
+        di as err "Error, id is required when savingWQSindex is reported"
         exit 198
   } 
   
-  /*datasetWQSindexName*/
-  if (`saveWQSindex'==0 & "`datasetWQSindexName'"!="") {
-        di as err "Error, datasetWQSindexName is allowed only when saveWQSindex=1"
-        exit 198
+  if ("`id'"!="") {
+        confirm variable `id'
   } 
-  
-  /*saveWeights*/
-  if (`saveWeights'!= 0 & `saveWeights'!=1) {
-        di as err "Error, saveWeights can be 1 (save) or 0 (do not save)"
-        exit 198
-  } 
-  
-  /*datasetWeightsName*/
-  if (`saveWeights'==0 & "`datasetWeightsName'"!="") {
-        di as err "Error, datasetWeightsName is allowed only when saveWeights=1"
-        exit 198
-  } 
+ 
   /*datasetWeightsName; datasetWQSindexName*/
-  if ("`datasetWeightsName'"=="`datasetWQSindexName'" & "`datasetWeightsName'"!="") {
-        di as err "Error, please provide different names for datasetWQSindexName and datasetWeightsName"
+  if ("`savingWeights'"=="`savingWQSindex'" & "`savingWeights'"!="") {
+        di as err "Error, please provide different names for savingWQSindex and savingWeights"
         exit 198
   } 
  
@@ -246,11 +254,7 @@ program define wqsreg_no_rh , rclass
             quietly gen Validation=rbinomial(1,`validation'/100)
   }
   
-  local firstvar : word 1 of `varlist'
-  qui gen Y_wqs = `firstvar'
-  
-  local n_varlist : word count `varlist'
-  scalar n_varlist = `n_varlist'
+  qui gen Y_wqs = `varlist'
 
   local n_mixt : word count `mixture'
   scalar n_mixt = `n_mixt'
@@ -268,13 +272,7 @@ program define wqsreg_no_rh , rclass
   if n_conf == 0 {
                   quietly gen Z_conf = . 
                  }
-    
-  if (n_conf+n_mixt!=n_varlist-1) {
-                                   use Dati.dta, clear
-                                   di as err "Error, please check the number of mixture components and of confounders"
-                                   erase Dati.dta
-                                   exit 198
-                                  } 
+
   
   foreach var of varlist `mixture' {
                                     xtile Q_wqs_`var' = `var', nq(`q')
@@ -283,7 +281,10 @@ program define wqsreg_no_rh , rclass
   matrix W_boot = J(1, `n_mixt', .)
  
   if `boot'==1 { 
+                
                 preserve
+				 
+				
                 quietly  drop if Validation==1 
   
                 
@@ -305,7 +306,9 @@ program define wqsreg_no_rh , rclass
                }
   else         {
               	forvalues i = 1/`boot' {
+					
                                         preserve
+										
                                         quietly  drop if Validation==1 
                                         bsample 
                                         capture noisily  WQS_single_boot  Y_wqs Q_wqs_* `cvar',  b1_neg(`b1_neg')  n_conf(`n_conf') conv_maxiter(`conv_maxiter') conv_vtol(`conv_vtol') technique(`technique')  model_fam(`model_fam')
@@ -313,10 +316,10 @@ program define wqsreg_no_rh , rclass
 										if (_rc!=0) {
 											         di as txt "Warning - bootstrap sample `i' not used"
 										            }
-
 										
                                         else {
-											if(/*p_WQS<0.05 &*/ b_WQS>0 & b1_neg==0){
+											  
+										if( /*p_WQS<0.05 &*/  b_WQS>0 & b1_neg==0){
              	             	                                              matrix W`i' = W
              	             	                                              matrix W_boot = W_boot \ W`i'
              	             	                                              }
@@ -326,6 +329,11 @@ program define wqsreg_no_rh , rclass
              	             	                                              }
 										}
                                         restore
+										
+										if _rc == 1 {   
+                                                     di as err "Interrupted by the user"
+                                                      exit 1	
+													}
 	                                    }
               }
 			  
@@ -337,23 +345,22 @@ program define wqsreg_no_rh , rclass
                }
    
    else	if (`rows'==1) {
-  	                    matrix W_boot=W_boot
-		                scalar x = W_boot[1,1]
+  	                    scalar x = W_boot[1,1]
 		                if (x==.) {
-		                            use Dati.dta, clear
+		                             
 		                            if( `b1_neg'==1){
-			                                        di as err "Error: There are no negative b1"													
-		                                         	erase Dati.dta
+			                                        di as err "Error: There are no negative b1"	
 		                                            exit 198
 		                                            }
 		                            if( `b1_neg'==0){
 			                                        di as err "Error: There are no positive b1"
-			                                        erase Dati.dta
 			                                        exit 198
 			                                        }
 		                          }
 	                    }
 						
+  
+  local rows = rowsof(W_boot)
   qui gen WQS_index = .
   
   mata{	
@@ -365,12 +372,8 @@ program define wqsreg_no_rh , rclass
        Y_wqs = st_data(., "Y_wqs");
        N = st_nobs()
 
-       WQS_index = J(N, 1, 0);
+       WQS_index=Q*mean_cols';
 	   
-       for (j=1; j<=N; j++)
-	                       { 
-                            WQS_index[j,1]=Q[j,]*mean_cols';
-                           }
        st_store(., "WQS_index", WQS_index);
 	}
 	
@@ -385,13 +388,8 @@ program define wqsreg_no_rh , rclass
 										local ++i
 		                                }									
 									
-	if (`saveWeights'==1){
-		                   	if "`datasetWeightsName'" == ""  {
-	                                                           qui save dataset_Weights.dta, replace
-                                                              }
-	                        else                             {
-	                                                           qui save "`datasetWeightsName'.dta" , replace
-	                                                          }	
+	if ("`savingWeights'"!=""){
+		                    savingWeights, filename("`savingWeights'")
 	                      }									
 
   restore
@@ -400,6 +398,7 @@ program define wqsreg_no_rh , rclass
   display ""
   display  "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*"
   display "N observations used - Total: " _N
+  di      "Number of bootstrap samples used: "     "`rows'"
   
   preserve
   
@@ -478,28 +477,13 @@ program define wqsreg_no_rh , rclass
 	                       }
   restore
 
-  if `saveWQSindex'==1 {
-                        preserve
-                        if "`id'" != "" {
-                                         keep `id' Validation WQS_index 
-                                        }
-                        else            {
-	                                     keep Validation WQS_index 
-                                        }
-										
-                       if "`datasetWQSindexName'" == ""  {
-	                                              qui save "dataset_WQS_index.dta", replace
-                                                 }
-	                   else                      {
-	                                              qui save "`datasetWQSindexName'.dta" , replace
-	                                             }
-
-                        restore
+  if "`savingWQSindex'"!="" {
+  	                       savingWQSindex , filename("`savingWQSindex'")    id("`id'") 
                      }
-
-  use Dati.dta, clear
-  erase Dati.dta
-
+ 
+  frame change default  // switch back to previous frame
+  frame drop fWQS       // drop new frame
+  
 end
 
 /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
@@ -508,8 +492,6 @@ capture program drop WQS_single_boot
 program define WQS_single_boot , rclass
 
   version 11
-
-  preserve
 
   syntax varlist [, b1_neg(integer 0) conv_maxiter(integer 2000) conv_vtol(real 0.000000001) technique(string) model_fam(string) ]  n_conf(integer)  
  
@@ -567,7 +549,7 @@ program define WQS_single_boot , rclass
   quietly mata{
 	
                 S  = optimize_init()  ;
-                b1_neg = st_numscalar("b1_neg");
+                 
                 n_mixt = st_numscalar("n_mixt");
                 n_conf = st_numscalar("n_conf");
 				N = st_nobs()
@@ -600,25 +582,17 @@ program define WQS_single_boot , rclass
 				
 
                 bh = bh'
-
-	            den=0
-                for (i=3; i<=n_mixt+2; i++) {
-                                             den = den + bh[i,1]^2
-                                            }
-
-	            W = J(1, n_mixt, 0)
-	            for (i=1; i<=n_mixt; i++) {
-		                                   W[1,i]=bh[i+2,1]^2/den
-                                          }
-    
+	            			
+				den = sum(bh[3::(n_mixt+2), 1] :^ 2)
+				W = (bh[3::(n_mixt+2), 1] :^ 2) / den
+                W = W'   
+                    
 	            st_matrix("W", W)
                 Q = st_data(., "Q_wqs_*")
 	            Y = st_data(., "Y_wqs")
 		
-	            WQS_index = J(N, 1, 0)
-		        for (j=1; j<=N; j++) {  
-		                               WQS_index[j,1]=Q[j,]*W'	
-	                                 }
+	            WQS_index = Q*W'
+				
 	             st_store(., "WQS_index_var", WQS_index)
 	           }
 	
@@ -650,10 +624,6 @@ program define WQS_single_boot , rclass
 	
 	matrix p_table = r(table)
     scalar p_WQS = p_table[4, 1]
-
-    restore 
-	
-
 end  
 
 /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
@@ -673,7 +643,7 @@ mata
 	  Q = st_data(., "Q_wqs_*")
 	  Z = st_data(., "Z_conf*")
 	  
-	  b1_neg = st_numscalar("b1_neg")
+	  
 	  n_mixt = st_numscalar("n_mixt")
 	  n_conf = st_numscalar("n_conf")
 	  
@@ -682,21 +652,9 @@ mata
 	  Interc = J(N, 1, 1)
 	  
 	  real scalar den  
-	  den=0
-	  for (i=3; i<=3+n_mixt-1; i++) {
-                                     den = den + b[1,i]^2
-                                    }
-	
-	  w = J(1, n_mixt, 0)
-	  for (i=3; i<=3+n_mixt-1; i++) {
-		                             w[1,i-2]=b[1,i]^2/den
-		                            }
- 
-      wqs_ = J(N, 1, 0)	
-	  for (i=1; i<=n_mixt; i++)
-	                           {
-		                         wqs_=wqs_+Q[,i]*w[1,i]
-		                        }	
+	  						
+	  w = b[1, 3::(3+n_mixt-1)]:^2 / sum(b[1, 3::(3+n_mixt-1)]:^2)
+	  wqs_ = Q * w'						
 				
 	  xb=Interc*b[1,2]+(wqs_)*b[1,1] 
 	  
@@ -707,9 +665,9 @@ mata
 	
      mu = J(N, 1, .)
 	 if (model_fam == "Logistic") {  
+	 	                             mu=1:/(1:+exp(-xb))
                                      for (j=1; j<=N; j++) { 
-									 	                    mu[j]=1/(1+exp(-xb[j]))
-									                        if (mu[j]<0.000000000001) {
+									 	                   if (mu[j]<0.000000000001) {
 																                       mu[j]=0.000000000001
 															                          } 
 															 if (mu[j]>1-0.000000000001) {
@@ -719,32 +677,51 @@ mata
 	                                } 
 									
 	 lambda = J(N, 1, .)
-	 if (model_fam == "Poisson") {								
-	                               for (j=1; j<=N; j++) {
-								   	                      lambda[j]=exp(xb[j])
-								   	                    }
+	 if (model_fam == "Poisson") {	
+	 	                           lambda=exp(xb)
 	                             }
-	  diff2 = J(N, 1, 0)
-      for (j=1; j<=N; j++) { 
-	                         if (model_fam == "Linear") {
-							 	                          diff2[j]=(xb[j]-y[j])^2
-							                             } 
-							 if (model_fam == "Logistic") {
-							 	                          if (y[j]==0)   {
-															             diff2[j] = -(2 * ( log(1-mu[j])))
-														                 }
-														  else if (y[j]==1) {
-															                 diff2[j] = -(2 * (log(mu[j])))
-														                    }
-							                             } 	
-							 if (model_fam == "Poisson") {
-							 	                           diff2[j]=-(-lambda[j] + y[j]*ln(lambda[j]) - ln(factorial(y[j])))
-							                             } 	
-                           } 
-						   
-      val = sum(diff2) 
+	 diff2 = J(N, 1, 0)
+      
+	 if (model_fam == "Linear") {
+							 	  diff2=(xb:-y):^2 
+							      } 
+	
+	 if (model_fam == "Logistic") {
+	  	
+		                            diff2= (y:==0) :* (-(2 :* ( log(1:-mu)))) + ///
+							 	           (y:==1) :* (-(2 :* (log(mu))))
+							        } 	
+									
+	  if (model_fam == "Poisson") {
+							 	    diff2=-(-lambda + y:*ln(lambda) - ln(factorial(y)))
+							       } 	
+                        				   
+     val = sum(diff2) 
 
 	}
 end
+
+capture program drop savingWQSindex
+program define savingWQSindex 
+
+        syntax [varlist] , filename(string) id(string)
+		
+		preserve
+                       keep `id' Validation WQS_index 	
+					   qui save "`filename'.dta"  , replace      
+
+        restore
+end
+
+capture program drop savingWeights
+program define savingWeights 
+
+        syntax [varlist] , filename(string) 
+					   qui save "`filename'.dta"  , replace      
+end
+
+
+
+
 
 /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/

@@ -14,17 +14,11 @@
 {title:Syntax}
 
 {p 8 13 2}
-{cmd:wqsreg} {it:yvar} {it:expvars} [{it:cvar}] , {opt mixture(varlist)} [ {it:options} ]
+{cmd:wqsreg} {it:yvar} , {opt mixture(varlist)} [ {it:options} ]
 
 
 {phang}
 {it:yvar} is the name of the outcome variable. 
-
-{phang}
-{it:expvars} is the varlist containing the names of the variables representing the exposure.  
-
-{phang}
-[{it:cvar}] is the varlist containing the names of the variables representing the confounders.  
 
 
 {synoptset 31 tabbed}{...}
@@ -42,13 +36,11 @@
 {synopt :{opt conv_vtol(real)}}set the tolerance; default is 0.000000001{p_end}
 {synopt :{opt technique(string)}}choose the optimization method: 'bfgs' (Broyden–Fletcher–Goldfarb–Shanno, default) or 'nr' (Modified Newton–Raphson){p_end}
 {synopt :{opt model_fam(string)}}choose the model: 'Linear' (default), 'Poisson' or 'Logistic'{p_end}
-{synopt :{opt saveWQSindex(integer)}}specify whether to save a dataset containing the WQS index for each observation: use 1 to save; the default is 0 (do not save). This option is not allowed for repeated holdout validation{p_end}
-{synopt :{opt saveWeights(integer)}}specify whether to save a dataset containing the weights: use 1 to save; the default is 0 (do not save){p_end}
-{synopt :{opt datasetWQSindexName(string)}}specify the name of the new dataset that will include the WQS index{p_end}
-{synopt :{opt datasetWeightsName(string)}}specify the name of the new dataset that will include the weights{p_end}
-{synopt :{opt figureName(string)}}specify the filename for the plot of weights, only if you want to save the figure{p_end}
+{synopt :{opt savingWQSindex(string)}}specify the name of the dataset that will include the WQS index, only if you want to save it; this option is not allowed for repeated holdout validation{p_end}
+{synopt :{opt savingWeights(string)}}specify the name of the new dataset that will include the weights, only if you want to save it{p_end}
+{synopt :{opt figureName(string)}}specify the filename for the plot of weights, only if you want to save it{p_end}
 {synopt :{opt id(string)}}specify the variable that identifies the observations{p_end}
-{synopt :{opt rh_rep(integer)}}set the number of repetitions for repeated holdout validation; 1 is the default (no repeated holdout validation){p_end}
+{synopt :{opt rh_rep(integer)}}set the number of repetitions for repeated holdout validation; 1 is the default (no repeated holdout validation) but for a more robust estimation the use of repeated holdouts is recommended{p_end}
 {p2colreset}{...}
 
 {p 4 6 2}* required.{p_end}
@@ -67,6 +59,13 @@ It allows estimating the overall effect of complex sets of exposures and the spe
 {pstd}
 {cmd:wqsreg} returns the estimates from WQS regression, generates plots of the estimated weights, and saves additional related information. It requires Stata version 11 or higher.
 
+{title:Note on unidirectionality}
+
+{pstd}
+{cmd:b1_neg}  does not impose any constraint during the optimization phase. Instead, it selects the bootstrap estimates matching the specified sign. This approach avoids including estimates from bootstrap samples without signal in the specified direction.
+
+
+
 {title:Example}
 
 {pstd} 
@@ -75,19 +74,31 @@ We present the application on a simulated dataset created for the 2015 National 
 Specifically, distributions and correlation structure of 14 exposure components were generated based on a mixture of polychlorinated biphenyls, dioxins, and furans from the
 National Health and Nutrition Examination Survey (NHANES). This dataset is available on GitHub [https://github.com/PonzanoMarta/wqsreg].
 
+{pstd}Download the example dataset in the current working directory{p_end}
+
+{phang2}{stata `"net get wqsreg, from("https://raw.githubusercontent.com/PonzanoMarta/wqsreg/refs/heads/main/")"'}{p_end}
+
+{pstd}Load data{p_end}
+
+{phang2}{stata use DataHelp.dta}{p_end}
+
 {pstd} 
 We fit a WQS regression model with positive directionality assumption, using quartiles for exposure categorization and 100 bootstrap samples with a 40/60 training-validation split.
 Specifically, we assess the association between the x1-x14 mixture and the continuous outcome y while adjusting for z1.
 
-{pstd}{cmd:. wqsreg y x* z1, mixture(x*) cvar(z1)}
+{pstd}{cmd:. wqsreg y   , mixture(x*) cvar(z1)}
+
+
+             Note: for a more robust estimation the use of repeated holdouts is recommended
 
                    -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
                    N observations used - Total: 500
+                   Number of bootstrap samples used: 100
                    N observations used - Validation: 290
-                   WQS index Coef: .47252473
+                   WQS index Coef: .47252471
                    Std. Err.: .04785578
                    p-value: 5.503e-20
-                   95% CI: [.37833192, .56671754]
+                   95% CI: [.3783319, .56671752]
                   -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 
@@ -118,9 +129,10 @@ PMID: 27905274; PMCID: PMC5132642.
 
 {title:Authors}
 
-{pstd}Marta Ponzano [1][2], Stefano Renzetti [3], Andrea Bellavia [4]{p_end}
+{pstd}Marta Ponzano [1][2], Stefano Renzetti [3], Andrea Discacciati [4], Andrea Bellavia [5]{p_end}
 
 {pstd}[1] {it:Department of Health Sciences, University of Genoa, Genoa, Italy}{p_end}
 {pstd}[2] {it:Department of Life Sciences, Health and Health Professions, Link Campus University, Rome, Italy}{p_end}
 {pstd}[3] {it:Department of Medicine and Surgery, University of Parma, Parma, Italy}{p_end}
-{pstd}[4] {it:Department of Environmental Health, Harvard T.H. Chan School of Public Health}{p_end}
+{pstd}[4] {it:Department of Medical Epidemiology and Biostatistics, Karolinska Institutet, Stockholm, Sweden}{p_end}
+{pstd}[5] {it:Department of Environmental Health, Harvard T.H. Chan School of Public Health}{p_end}
