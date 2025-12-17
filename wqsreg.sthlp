@@ -129,10 +129,9 @@ PMID: 27905274; PMCID: PMC5132642.
 
 {title:Authors}
 
-{pstd}Marta Ponzano [1][2], Stefano Renzetti [3], Andrea Discacciati [4], Andrea Bellavia [5]{p_end}
+{pstd}Marta Ponzano [1][2], Stefano Renzetti [3], Andrea Bellavia [4]{p_end}
 
 {pstd}[1] {it:Department of Health Sciences, University of Genoa, Genoa, Italy}{p_end}
 {pstd}[2] {it:Department of Life Sciences, Health and Health Professions, Link Campus University, Rome, Italy}{p_end}
 {pstd}[3] {it:Department of Medicine and Surgery, University of Parma, Parma, Italy}{p_end}
-{pstd}[4] {it:Department of Medical Epidemiology and Biostatistics, Karolinska Institutet, Stockholm, Sweden}{p_end}
-{pstd}[5] {it:Department of Environmental Health, Harvard T.H. Chan School of Public Health}{p_end}
+{pstd}[4] {it:Department of Environmental Health, Harvard T.H. Chan School of Public Health}{p_end}
