@@ -34,9 +34,9 @@ help wqsreg
 
 ### Authors
 
-Marta Ponzano (1, 2), Stefano Renzetti (3), Andrea Bellavia (4,5)
+Marta Ponzano (1, 2), Stefano Renzetti (3), Chris Gennings (4), Andrea Bellavia (5,6)
 
-*(1) University of Genoa, Genoa, Italy (2) Link Campus University, Rome, Italy (3) University of Parma, Parma, Italy (4) Harvard T.H. Chan School of Public Health, Boston, MA, USA (5) Harvard Medical School, Boston, MA, USA*
+*(1) University of Genoa, Genoa, Italy (2) Link Campus University, Rome, Italy (3) University of Parma, Parma, Italy (4) Icahn School of Medicine at Mount Sinai, New York, NY, USA (5) Harvard T.H. Chan School of Public Health, Boston, MA, USA (6) Harvard Medical School, Boston, MA, USA*
 
 ### References
 
