@@ -544,7 +544,7 @@ program define WQS_single_boot , rclass
   	            matrix b_confounders=0
                }
   
-  quietly gen WQS_index_var = .
+  quietly gen WQS_index = .
  
   quietly mata{
 	
@@ -593,7 +593,7 @@ program define WQS_single_boot , rclass
 		
 	            WQS_index = Q*W'
 				
-	             st_store(., "WQS_index_var", WQS_index)
+	             st_store(., "WQS_index", WQS_index)
 	           }
 	
 	if (n_conf >0) {
