@@ -4,13 +4,19 @@
 - Current version: `V.1.0.0` 
 - Release date: `12dec2025`
 
+### Citation
+
+If you use this command in your research, please consider citing:
+
+Ponzano M, Renzetti S, Gennings C, Bellavia A. *Wqsreg: a Stata command for weighted quantile sum regression*. European Journal of Epidemiology. 2026.
+
 ---
 
 ### Description
 
 `wqsreg` allows estimating Weighted Quantile Sum regression for continuous, binary, and count outcomes
 
-Further details can be found in the help file.
+Further details can be found in the help file and in the [EJE paper](https://link.springer.com/article/10.1007/s10654-026-01423-0).
 
 ### Installation
 
